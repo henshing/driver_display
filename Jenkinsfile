@@ -17,6 +17,7 @@ pipeline {
         buildNumber = "${currentBuild.number}"
         // 构建 Allure 报告地址
         allureReportUrl = "${JENKINS_URL}/${JOB_PATH}/${buildNumber}/${REPORT_PATH}"
+        REPORT_EMAIL="1445323887@qq.com"
     }
     
     stages {
@@ -25,6 +26,23 @@ pipeline {
                 script {
                     parallel repoJobs()
                 }
+            }
+        }
+    }
+
+    post {
+        failure{
+            script{
+                mail to:"${REPORT_EMAIL}",
+                subject:"PipeLine'${JOB_NAME}'(${BUILD_NUMBER})执行失败",
+                body:"${currentRepoName}仓CI报告链接：\n pipeline '${JOB_NAME}'(${BUILD_NUMBER}) (${allureReportUrl})"
+            }
+        }
+        success{
+            script{
+                mail to:"${REPORT_EMAIL}",
+                subject:"PipeLine'${JOB_NAME}'(${BUILD_NUMBER})执行成功",
+                body:"${currentRepoName}仓CI报告链接：\n pipeline '${JOB_NAME}'(${BUILD_NUMBER}) (${allureReportUrl})"
             }
         }
     }
@@ -38,9 +56,6 @@ def repoJobs() {
   jobs = [:]
   repos().each { repo ->
     jobs[repo] = { 
-        stage(repo) {
-           echo "Step for $repo"
-        }
         stage(repo + "代码检出"){
            echo "$repo 代码检出"
            sh "rm -rf  $repo; git clone $GITHUB_URL_PREFIX$repo$GITHUB_URL_SUFFIX; echo `pwd`;"
