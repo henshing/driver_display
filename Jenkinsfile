@@ -2,16 +2,16 @@ pipeline {
     agent any
 
     environment {
-        name = "Starry"
+        name = "ComponentStarry"
         // 主仓名
-        mainRepoName = "Starry"
+        mainRepoName = "ComponentStarry"
         // 提交仓名
         currentRepoName = "${GIT_URL.substring(GIT_URL.lastIndexOf('/')+1, GIT_URL.length()-4)}"
         NODE_BASE_NAME = "ui-node-${GIT_COMMIT.substring(0, 6)}"
         JENKINS_URL = "http://49.51.192.19:9095"
-        JOB_PATH = "job/github_test_sl"
+        JOB_PATH = "job/github_test_yk"
         REPORT_PATH = "allure"
-        GITHUB_URL_PREFIX = "https://github.com/henshing/"
+        GITHUB_URL_PREFIX = "https://github.com/kraigyang/"
         GITHUB_URL_SUFFIX = ".git"
         //根据内置变量currentBuild获取构建号
         buildNumber = "${currentBuild.number}"
@@ -57,7 +57,7 @@ def repoJobs() {
                 echo "$repo 编译测试"
                 sh 'printenv'
                 echo "--------------------------------------------$repo test start------------------------------------------------"
-                sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos_cargo_test.py --clean-alluredir'
+                sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
                 echo "--------------------------------------------$repo test end  ------------------------------------------------"
             }
         }
