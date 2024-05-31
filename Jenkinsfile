@@ -55,7 +55,7 @@ def repoJobs() {
                 echo "$repo 编译测试"
                 sh 'printenv'
                 echo "--------------------------------------------$repo test start------------------------------------------------"
-                sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork && python3 -m pytest -sv --alluredir report/result testcase/test_arceos_cargo_test.py --clean-alluredir'
+                sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork && python3 -m pytest -sv --alluredir report/result pytest/testcase/test_arceos_cargo_test.py --clean-alluredir'
                 echo "--------------------------------------------$repo test end  ------------------------------------------------"
             }
         }
