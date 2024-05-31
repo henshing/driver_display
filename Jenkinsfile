@@ -28,6 +28,28 @@ pipeline {
                 }
             }
         }
+        stage("合并报告") {
+            steps {
+                script {
+                    echo "合并所有仓库的 Allure 报告"
+                    sh '''
+                        rm -rf merged-report
+                        mkdir -p merged-report
+                        for repo in ${repos().join(' ')}
+                        do
+                            cp -r $WORKSPACE/$repo/pytest/report/result/* merged-report/
+                        done
+                        allure generate merged-report -o merged-report/html --clean
+                    '''
+                }
+            }
+        }
+        stage("展示合并报告") {
+            steps {
+                allure includeProperties: false, jdk: 'jdk17', report: 'merged-report/html', results: [[path: 'merged-report']]
+                echo "Allure 综合报告 URL: ${allureReportUrl}"
+            }
+        }
     }
 
     post {
@@ -65,7 +87,7 @@ def repoJobs() {
                 sh "cp -r /home/jenkins_home/pytest $WORKSPACE/$repo"
             }
             stage(repo + "编译测试") {
-                withEnv(["repoName=$repo"]) { // it can override any env variable
+                withEnv(["repoName=$repo"]) {
                     echo "repoName = ${repoName}"
                     echo "$repo 编译测试"
                     sh 'printenv'
@@ -80,11 +102,10 @@ def repoJobs() {
             }
             stage(repo + "报告生成") {
                 echo "$repo 报告生成"
-                // 输出 Allure 报告地址
                 echo "$repo Allure Report URL: ${allureReportUrl}"
             }
             stage(repo + "结果展示") {
-                withEnv(["repoName=$repo"]) { // it can override any env variable
+                withEnv(["repoName=$repo"]) {
                     echo "repoName = ${repoName}"
                     echo "$repo 结果展示"
                     sh 'printenv'
