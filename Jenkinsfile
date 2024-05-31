@@ -66,7 +66,7 @@ def repoJobs() {
                 if (repoName == mainRepoName) {
                     sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
                 } else {
-                    sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos_cargo_test.py --clean-alluredir'
+                    sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos_cargo_test.py'
                 }
 
                 echo "--------------------------------------------$repo test end  ------------------------------------------------"
@@ -82,7 +82,7 @@ def repoJobs() {
                 echo "$repo 结果展示"
                 sh 'printenv'
                 echo "-------------------------$repo allure report generating start---------------------------------------------------"
-                sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && allure generate ./report/result -o ./report/html --clean'
+                sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && allure generate ./report/result -o ./report/html '
                 allure includeProperties: false, jdk: 'jdk17', report: "$repo/pytest/report/html", results: [[path: "$repo/pytest/report/result"]]
                 echo "-------------------------$repo allure report generating end ----------------------------------------------------"
             }
