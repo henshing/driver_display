@@ -13,7 +13,7 @@ pipeline {
         REPORT_PATH = "allure"
         GITHUB_URL_PREFIX = "https://github.com/henshing/"
         GITHUB_URL_SUFFIX = ".git"
-        // 根据内置变量 currentBuild 获取构建号
+        //根据内置变量 currentBuild 获取构建号
         buildNumber = "${currentBuild.number}"
         // 构建 Allure 报告地址
         allureReportUrl = "${JENKINS_URL}/${JOB_PATH}/${buildNumber}/${REPORT_PATH}"
@@ -26,28 +26,6 @@ pipeline {
                 script {
                     parallel repoJobs()
                 }
-            }
-        }
-        stage("合并报告") {
-            steps {
-                script {
-                    echo "合并所有仓库的 Allure 报告"
-                    sh '''
-                        rm -rf merged-report
-                        mkdir -p merged-report
-                        for repo in ${repos().join(' ')}
-                        do
-                            cp -r $WORKSPACE/$repo/pytest/report/result/* merged-report/
-                        done
-                        allure generate merged-report -o merged-report/html --clean
-                    '''
-                }
-            }
-        }
-        stage("展示合并报告") {
-            steps {
-                allure includeProperties: false, jdk: 'jdk17', report: 'merged-report/html', results: [[path: 'merged-report']]
-                echo "Allure 综合报告 URL: ${allureReportUrl}"
             }
         }
     }
@@ -95,13 +73,14 @@ def repoJobs() {
                     if (repoName == mainRepoName) {
                         sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
                     } else {
-                        sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos_cargo_test.py --clean-alluredir'
+                        sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && python3 -m pytest -sv --alluredir report/result testcase/test_arceos_cargo_test.py '
                     }
                     echo "--------------------------------------------$repo test end  ------------------------------------------------"
                 }
             }
             stage(repo + "报告生成") {
                 echo "$repo 报告生成"
+                // 输出 Allure 报告地址
                 echo "$repo Allure Report URL: ${allureReportUrl}"
             }
             stage(repo + "结果展示") {
@@ -110,7 +89,7 @@ def repoJobs() {
                     echo "$repo 结果展示"
                     sh 'printenv'
                     echo "-------------------------$repo allure report generating start---------------------------------------------------"
-                    sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && allure generate ./report/result -o ./report/html --clean'
+                    sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && rm -rf ./report/html && allure generate ./report/result -o ./report/html'
                     allure includeProperties: false, jdk: 'jdk17', report: "$repo/pytest/report/html", results: [[path: "$repo/pytest/report/result"]]
                     echo "-------------------------$repo allure report generating end ----------------------------------------------------"
                 }
