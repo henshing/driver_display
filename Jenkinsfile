@@ -16,7 +16,7 @@ pipeline {
         buildNumber = "${currentBuild.number}"
         // 构建 Allure 报告地址
         allureReportUrl = "${JENKINS_URL}/${JOB_PATH}/${buildNumber}/${REPORT_PATH}"
-        FROM_EMAIL="shaolin@china-icv.cn"
+        FROM_EMAIL="bityk@163.com"
         REPORT_EMAIL="1445323887@qq.com"
     }
     
